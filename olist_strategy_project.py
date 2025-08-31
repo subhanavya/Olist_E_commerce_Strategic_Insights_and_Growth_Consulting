@@ -26,9 +26,9 @@ def load_datasets(base_path):
         path = os.path.join(base_path, v)
         if os.path.exists(path):
             datasets[k] = pd.read_csv(path)
-            print(f"✅ Loaded {v}")
+            print(f" Loaded {v}")
         else:
-            print(f"❌ Missing {v} in {base_path}")
+            print(f" Missing {v} in {base_path}")
     return datasets
 
 # ================================
@@ -159,7 +159,7 @@ def build_ppt():
                  "- 30% reduction in negative reviews from SLA improvements\n")
 
     prs.save("Olist_Strategy_Report.pptx")
-    print("✅ Professional PPT generated: Olist_Strategy_Report.pptx")
+    print(" Professional PPT generated: Olist_Strategy_Report.pptx")
 
 # ================================
 # 5. PIPELINE RUNNER
