@@ -13,14 +13,13 @@ import warnings
 warnings.filterwarnings("ignore")
 sns.set_style("whitegrid")
 
-#paths
-BASE_PATH = "archive"   # change to "." if CSVs are in same folder as script
+
+BASE_PATH = "archive"  
 CHART_DIR = "charts"
 OUTPUT_PPT = "Olist_Consulting_Deck.pptx"
 
 os.makedirs(CHART_DIR, exist_ok=True)
-
-# making helper 
+ 
 def save_fig(fname):
     path = os.path.join(CHART_DIR, fname)
     plt.tight_layout()
@@ -29,9 +28,7 @@ def save_fig(fname):
     print(f"Saved chart: {path}")
     return path
 
-# ----------------------------
-# 1) Load datasets
-# ----------------------------
+
 def load_datasets(base_path):
     files = {
         "orders": "olist_orders_dataset.csv",
@@ -56,9 +53,7 @@ def load_datasets(base_path):
             print(f"Missing {v} (skipping)")
     return datasets
 
-# ----------------------------
-# 2) Build fact table
-# ----------------------------
+
 def build_fact(datasets):
     if "orders" not in datasets:
         raise FileNotFoundError("Orders dataset required to build fact table.")
@@ -79,9 +74,6 @@ def build_fact(datasets):
     fact["revenue"] = fact["payment_value"].fillna(0.0)
     return fact
 
-# ----------------------------
-# 3) Analysis & Charts
-# ----------------------------
 def revenue_trends(fact):
     df = fact.dropna(subset=["month"])
     rev = df.groupby("month")["revenue"].sum().sort_index()
@@ -95,7 +87,7 @@ def revenue_trends(fact):
     plt.xticks(rotation=45)
     save_fig("revenue_trend.png")
 
-    # Revenue growth %
+    
     growth = rev.pct_change().fillna(0) * 100
     plt.figure(figsize=(10,4.5))
     plt.plot(growth.index, growth.values, marker="o")
@@ -106,7 +98,7 @@ def revenue_trends(fact):
     plt.xticks(rotation=45)
     save_fig("revenue_growth_pct.png")
 
-    # Orders + Revenue (dual axis)
+    
     plt.figure(figsize=(10,4.5))
     ax = plt.gca()
     ax.plot(rev.index, rev.values, marker="o", label="Revenue")
@@ -177,7 +169,8 @@ def cohort_retention(fact):
     customers["cohort_index"] = (customers["month"].dt.to_period("M") - customers["cohort_month"].dt.to_period("M")).apply(lambda x: x.n)
     cohort_pivot = customers.groupby(["cohort_month","cohort_index"])["customer_id"].nunique().reset_index()
     pivot = cohort_pivot.pivot(index="cohort_month", columns="cohort_index", values="customer_id").fillna(0)
-    # Normalize by cohort size -> retention %
+    
+    
     cohort_sizes = pivot.iloc[:,0]
     retention = pivot.div(cohort_sizes, axis=0)*100
     plt.figure(figsize=(12,6))
@@ -242,7 +235,6 @@ def revenue_by_state(datasets, fact):
     save_fig("revenue_by_state.png")
     return rev_state
 
-# to make ppt
 def add_title_slide(prs, title, subtitle):
     slide = prs.slides.add_slide(prs.slide_layouts[0])
     slide.shapes.title.text = title
@@ -267,7 +259,8 @@ def add_text_slide(prs, title, paragraphs):
             p_new.level = 0
 
 def add_chart_with_insight(prs, img_path, title, insight_text):
-    # use a blank/content layout
+    
+    
     slide = prs.slides.add_slide(prs.slide_layouts[5])
     slide.shapes.title.text = title
     left, top, w, h = Inches(0.6), Inches(1.4), Inches(6.5), Inches(4.0)
@@ -288,10 +281,11 @@ def add_chart_with_insight(prs, img_path, title, insight_text):
 
 def build_presentation(chart_paths, analytics_results):
     prs = Presentation()
-    # Title
+
+    
     add_title_slide(prs, "Olist E-Commerce — Strategic Analysis", "Data-driven recommendations & roadmap")
 
-    # Executive summary slide (concise, impactful)
+   
     exec_summary = [
         "Key takeaways:",
         " • Revenue exhibits a strong upward trend, but month-to-month growth is volatile (seasonality & spikes).",
@@ -302,7 +296,7 @@ def build_presentation(chart_paths, analytics_results):
     ]
     add_text_slide(prs, "Executive Summary", exec_summary)
 
-    # Client challenge and approach
+    
     add_text_slide(prs, "Client Challenge", [
         "Olist seeks sustainable revenue growth while improving customer lifetime value and operational excellence.",
         "Key asks: Improve retention, diversify revenue, reduce negative reviews from delivery issues, and expand payment options."
@@ -314,8 +308,7 @@ def build_presentation(chart_paths, analytics_results):
         "4) Strategic recommendations & implementation roadmap"
     ])
 
-    # Add the charts + insights (if available)
-    # Revenue Trend
+
     if chart_paths.get("revenue_trend"):
         add_chart_with_insight(prs, chart_paths["revenue_trend"],
                                "Revenue Trend",
@@ -401,9 +394,7 @@ def build_presentation(chart_paths, analytics_results):
     prs.save(OUTPUT_PPT)
     
 
-# ----------------------------
-# 5) Runner
-# ----------------------------
+
 def main():
     datasets = load_datasets(BASE_PATH)
     try:
