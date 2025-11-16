@@ -8,9 +8,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# ================================
-# 1. LOAD DATA
-# ================================
+
 def load_datasets(base_path):
     datasets = {}
     files = {
@@ -31,9 +29,7 @@ def load_datasets(base_path):
             print(f" Missing {v} in {base_path}")
     return datasets
 
-# ================================
-# 2. FACT TABLE
-# ================================
+
 def build_fact(datasets):
     orders = datasets["orders"]
     payments = datasets["payments"]
@@ -46,9 +42,7 @@ def build_fact(datasets):
     fact["revenue"] = fact["payment_value"].fillna(0)
     return fact
 
-# ================================
-# 3. ANALYSIS FUNCTIONS
-# ================================
+
 def revenue_trends(fact):
     rev = fact.groupby("month")["revenue"].sum()
     growth = rev.pct_change().fillna(0) * 100
@@ -96,9 +90,7 @@ def payment_distribution(datasets):
     plt.savefig("charts/payment_methods.png")
     plt.close()
 
-# ================================
-# 4. PPT BUILDER
-# ================================
+
 def build_ppt():
     prs = Presentation()
 
@@ -161,9 +153,7 @@ def build_ppt():
     prs.save("Olist_Strategy_Report.pptx")
     print(" Professional PPT generated: Olist_Strategy_Report.pptx")
 
-# ================================
-# 5. PIPELINE RUNNER
-# ================================
+
 def run_pipeline():
     base_path = "archive"  # change if needed
     os.makedirs("charts", exist_ok=True)
